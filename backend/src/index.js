@@ -12,7 +12,7 @@ const webhookRoutes = require('./routes/webhook');
 const app = express();
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001'] }));
 app.use(express.json());
 
 // Request logger
@@ -45,7 +45,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`AI Receptionist Backend is running on port ${PORT}`);
 });

@@ -1,9 +1,8 @@
-const { OpenAI } = require('openai');
 require('dotenv').config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const generateResponse = async (tenant, knowledgeItems, conversationHistory, customerMessage) => {
   try {
@@ -28,29 +27,57 @@ Instructions:
 
     systemPrompt += `\n\n${knowledgeText}`;
 
-    // Format conversation history
-    const messages = [
-      { role: 'system', content: systemPrompt }
-    ];
+    // Build conversation contents for Gemini
+    // Gemini uses a different format than OpenAI
+    const contents = [];
 
+    // Add conversation history
     conversationHistory.forEach(msg => {
-      messages.push({
-        role: msg.direction === 'inbound' ? 'user' : 'assistant',
-        content: msg.content
+      contents.push({
+        role: msg.direction === 'inbound' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
       });
     });
 
     // Add current user message
-    messages.push({ role: 'user', content: customerMessage });
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 300,
+    contents.push({
+      role: 'user',
+      parts: [{ text: customerMessage }]
     });
 
-    return completion.choices[0].message.content;
+    const response = await fetch(GEMINI_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': GEMINI_API_KEY
+      },
+      body: JSON.stringify({
+        system_instruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        contents: contents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1000
+        }
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Gemini API Error:', JSON.stringify(data));
+      throw new Error(data.error?.message || 'Gemini API error');
+    }
+
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!replyText) {
+      console.error('No text in Gemini response:', JSON.stringify(data));
+      throw new Error('Empty response from Gemini');
+    }
+
+    return replyText;
   } catch (error) {
     console.error('Error generating AI response:', error);
     return 'I apologize, but I am having trouble connecting to my system right now. Please try again later or wait for a human representative to contact you.';

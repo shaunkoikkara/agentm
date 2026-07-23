@@ -6,6 +6,34 @@ const whatsappService = require('../services/whatsapp');
 
 router.use(authMiddleware);
 
+// GET /stats - Dashboard statistics
+router.get('/stats', async (req, res) => {
+  try {
+    const tenantId = req.tenant.id;
+
+    // Run all stat queries in parallel
+    const [convCount, contactCount, activeCount, todayMsgCount] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM conversations WHERE tenant_id = $1', [tenantId]),
+      pool.query('SELECT COUNT(*) FROM contacts WHERE tenant_id = $1', [tenantId]),
+      pool.query("SELECT COUNT(*) FROM conversations WHERE tenant_id = $1 AND status = 'active'", [tenantId]),
+      pool.query(
+        "SELECT COUNT(*) FROM messages WHERE tenant_id = $1 AND created_at >= CURRENT_DATE",
+        [tenantId]
+      )
+    ]);
+
+    res.json({
+      totalConversations: parseInt(convCount.rows[0].count),
+      totalContacts: parseInt(contactCount.rows[0].count),
+      activeConversations: parseInt(activeCount.rows[0].count),
+      messagesToday: parseInt(todayMsgCount.rows[0].count)
+    });
+  } catch (error) {
+    console.error('Get stats error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET /
 router.get('/', async (req, res) => {
   try {

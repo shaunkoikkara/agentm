@@ -11,7 +11,7 @@ INSERT INTO tenants (
 ) VALUES (
     '550e8400-e29b-41d4-a716-446655440000',
     'demo@clinic.com',
-    '$2a$10$X7UrE3GnM3YGQxqPmKZXt.9JZgE5LxMQhM5H8kA9vXmLR8mvYspMu',
+    '$2a$10$Pk6auEvHtwoTWALeLieseOUAnWNyoDGj1OQ39qdpsE/.P3Z7YOHjm',
     'SmileCare Dental Clinic',
     'Dental',
     'A premier dental clinic providing comprehensive oral care services.',
