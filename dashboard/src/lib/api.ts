@@ -30,6 +30,8 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
 export const api = {
   login: (data: any) => fetchApi('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   signup: (data: any) => fetchApi('/auth/signup', { method: 'POST', body: JSON.stringify(data) }),
+  verifyOtp: (data: any) => fetchApi('/auth/verify-otp', { method: 'POST', body: JSON.stringify(data) }),
+  resendOtp: (data: any) => fetchApi('/auth/resend-otp', { method: 'POST', body: JSON.stringify(data) }),
   
   getTenant: () => fetchApi('/tenants/me'),
   updateTenant: (data: any) => fetchApi('/tenants/me', { method: 'PUT', body: JSON.stringify(data) }),
