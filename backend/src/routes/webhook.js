@@ -26,7 +26,10 @@ router.post('/', async (req, res) => {
   try {
     const body = req.body;
     
+    console.log('📩 Webhook POST received:', JSON.stringify(body, null, 2));
+    
     if (body.object !== 'whatsapp_business_account') {
+      console.log('Not a WhatsApp event, ignoring. Object:', body.object);
       return res.sendStatus(404);
     }
     

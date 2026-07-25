@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const sendTextMessage = async (phoneNumberId, to, text, accessToken) => {
   try {
-    const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
+    const url = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
     
     const response = await fetch(url, {
       method: 'POST',
