@@ -27,6 +27,7 @@ const sendTextMessage = async (phoneNumberId, to, text, accessToken) => {
       throw new Error(`WhatsApp API error: ${data.error?.message || 'Unknown error'}`);
     }
     
+    console.log('✅ Meta API Accepted Message:', JSON.stringify(data));
     return data;
   } catch (error) {
     console.error('Failed to send WhatsApp message:', error);

@@ -18,14 +18,12 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const convos = await api.getConversations();
-        const active = convos.filter((c: any) => c.status === 'active').length;
-        
+        const data = await api.getConversationStats();
         setStats({
-          totalConversations: convos.length,
-          totalContacts: new Set(convos.map((c: any) => c.contact_id)).size,
-          activeConversations: active,
-          messagesToday: Math.floor(Math.random() * 50) + 10 // Mock data for now since we'd need to fetch messages
+          totalConversations: data.totalConversations || 0,
+          totalContacts: data.totalContacts || 0,
+          activeConversations: data.activeConversations || 0,
+          messagesToday: data.messagesToday || 0
         });
       } catch (error) {
         console.error('Failed to fetch stats', error);

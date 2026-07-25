@@ -42,7 +42,8 @@ router.post('/', async (req, res) => {
     const messages = value?.messages;
     
     if (!messages || messages.length === 0) {
-      return; // Not a message event
+      console.log('⚠️ Not a message event, it might be a status update (delivered/read). Skipping.');
+      return;
     }
     
     const phoneNumberId = value.metadata.phone_number_id;
@@ -52,11 +53,11 @@ router.post('/', async (req, res) => {
     const whatsappMessageId = message.id;
     
     if (!messageBody) {
-      console.log('Received non-text message, ignoring for now');
+      console.log('⚠️ Received non-text message, ignoring for now');
       return;
     }
     
-    console.log(`Received message from ${customerNumber} to ${phoneNumberId}: ${messageBody}`);
+    console.log(`✅ Message parsed! From: ${customerNumber}, To ID: ${phoneNumberId}, Text: ${messageBody}`);
     
     // 2. Find tenant by whatsapp_phone_number_id
     const tenantResult = await pool.query(
@@ -65,11 +66,12 @@ router.post('/', async (req, res) => {
     );
     
     if (tenantResult.rows.length === 0) {
-      console.log(`No active tenant found for phone_number_id: ${phoneNumberId}`);
+      console.log(`❌ No active tenant found for phone_number_id: ${phoneNumberId}`);
       return;
     }
     
     const tenant = tenantResult.rows[0];
+    console.log(`✅ Tenant matched: ${tenant.business_name}`);
     
     // 3. Find or create contact
     let contactId;

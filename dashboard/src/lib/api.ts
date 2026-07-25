@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://localhost:5001/api';
 
 function getHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -42,6 +42,7 @@ export const api = {
   deleteKnowledge: (id: string) => fetchApi(`/knowledge/${id}`, { method: 'DELETE' }),
   
   getConversations: () => fetchApi('/conversations'),
+  getConversationStats: () => fetchApi('/conversations/stats'),
   getConversation: (id: string) => fetchApi(`/conversations/${id}`),
   takeoverConversation: (id: string) => fetchApi(`/conversations/${id}/takeover`, { method: 'POST' }),
   releaseConversation: (id: string) => fetchApi(`/conversations/${id}/release`, { method: 'POST' }),

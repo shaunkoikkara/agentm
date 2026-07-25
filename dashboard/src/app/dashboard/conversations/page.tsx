@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
-import { Send, User, Bot, Loader2, Phone, AlertCircle } from 'lucide-react';
+import { Send, User, Bot, Loader2, Phone, AlertCircle, MessageSquare } from 'lucide-react';
 
 export default function ConversationsPage() {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -34,8 +34,10 @@ export default function ConversationsPage() {
 
   const fetchConversations = async () => {
     try {
-      const data = await api.getConversations();
-      setConversations(Array.isArray(data) ? data : []);
+      const responseData = await api.getConversations();
+      // The API returns { data: [...], total: X, limit: Y, offset: Z }
+      const items = responseData.data || responseData;
+      setConversations(Array.isArray(items) ? items : []);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -46,7 +48,8 @@ export default function ConversationsPage() {
   const fetchMessages = async (id: string) => {
     try {
       const data = await api.getConversation(id);
-      setConvDetails(data.conversation);
+      // The API spreads the conversation fields at the root of the response
+      setConvDetails(data.conversation || data);
       setMessages(data.messages || []);
     } catch (error) {
       console.error(error);
@@ -56,12 +59,13 @@ export default function ConversationsPage() {
   const handleTakeoverToggle = async () => {
     if (!selectedId || !convDetails) return;
     try {
-      if (convDetails.status === 'human') {
+      if (convDetails.is_human_takeover) {
         await api.releaseConversation(selectedId);
       } else {
         await api.takeoverConversation(selectedId);
       }
       fetchMessages(selectedId);
+      fetchConversations(); // Update sidebar too
     } catch (error) {
       console.error(error);
     }
@@ -117,8 +121,8 @@ export default function ConversationsPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className={`w-2 h-2 rounded-full ${c.status === 'human' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                  <span className="text-xs text-zinc-500 capitalize">{c.status} Mode</span>
+                  <span className={`w-2 h-2 rounded-full ${c.is_human_takeover ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                  <span className="text-xs text-zinc-500 capitalize">{c.is_human_takeover ? 'Human Mode' : 'AI Mode'}</span>
                 </div>
               </div>
             ))
@@ -139,12 +143,12 @@ export default function ConversationsPage() {
               <button
                 onClick={handleTakeoverToggle}
                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  convDetails?.status === 'human' 
+                  convDetails?.is_human_takeover 
                     ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/20' 
                     : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/20'
                 }`}
               >
-                {convDetails?.status === 'human' ? 'Return to AI' : 'Takeover Chat'}
+                {convDetails?.is_human_takeover ? 'Return to AI' : 'Takeover Chat'}
               </button>
             </div>
 
@@ -184,7 +188,7 @@ export default function ConversationsPage() {
 
             {/* Input */}
             <div className="p-4 bg-zinc-900/50 border-t border-white/5">
-              {convDetails?.status === 'human' ? (
+              {convDetails?.is_human_takeover ? (
                 <form onSubmit={handleSend} className="flex gap-2">
                   <input
                     type="text"
