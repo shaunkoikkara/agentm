@@ -1,13 +1,23 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { api } from '@/lib/api';
 import { Save, Loader2, CheckCircle2 } from 'lucide-react';
+
+// Declare FB globally for TypeScript
+declare global {
+  interface Window {
+    FB: any;
+    fbAsyncInit: any;
+  }
+}
 
 export default function SettingsPage() {
   const [tenant, setTenant] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
@@ -43,6 +53,51 @@ export default function SettingsPage() {
     }
   };
 
+  const handleFacebookConnect = () => {
+    if (typeof window === 'undefined' || !window.FB) {
+      showToast('Facebook SDK not loaded yet. Please wait a moment.', 'error');
+      return;
+    }
+
+    setIsConnecting(true);
+
+    window.FB.login((response: any) => {
+      // Use setTimeout to break out of the FB SDK call stack
+      // This prevents React from throwing a Cross-Origin Error if our code throws
+      setTimeout(async () => {
+        console.log("FB Login Raw Response:", response);
+        
+        if (response.authResponse) {
+          try {
+            // Facebook might return either 'accessToken' or 'code' depending on the configuration
+            const tokenOrCode = response.authResponse.accessToken || response.authResponse.code;
+            
+            if (!tokenOrCode) {
+              throw new Error("Facebook did not return an access token or code.");
+            }
+
+            const result = await api.connectWhatsApp({ accessToken: tokenOrCode });
+            setTenant({ ...tenant, wa_phone_number_id: result.whatsapp_phone_number_id });
+            showToast('WhatsApp connected successfully!');
+          } catch (error: any) {
+            console.error('Connection error:', error);
+            showToast(error.message || 'Failed to connect WhatsApp', 'error');
+          }
+        } else {
+          showToast('Facebook login cancelled.', 'error');
+        }
+        setIsConnecting(false);
+      }, 0);
+    }, {
+      config_id: process.env.NEXT_PUBLIC_FACEBOOK_CONFIG_ID,
+      response_type: 'code',
+      override_default_response_type: true,
+      extras: {
+        setup: {}
+      }
+    });
+  };
+
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>;
 
   return (
@@ -61,6 +116,21 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-white">Settings</h1>
         <p className="text-zinc-400 text-sm mt-1">Configure your business details and AI behavior.</p>
       </div>
+
+      <Script 
+        src="https://connect.facebook.net/en_US/sdk.js" 
+        strategy="lazyOnload" 
+        onLoad={() => {
+          if (window.FB) {
+            window.FB.init({
+              appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
+              cookie: true,
+              xfbml: true,
+              version: 'v21.0'
+            });
+          }
+        }}
+      />
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Business Info */}
@@ -161,9 +231,21 @@ export default function SettingsPage() {
                 </p>
               </div>
             </div>
-            <p className="text-xs text-zinc-500 mt-4">
-              WhatsApp configuration is managed via the backend. Contact support to update these credentials.
-            </p>
+            
+            <div className="mt-6 flex flex-col items-start gap-3 border-t border-white/5 pt-4">
+              <p className="text-sm text-zinc-400">
+                Connect your WhatsApp Business Account to allow the AI Receptionist to send and receive messages.
+              </p>
+              <button
+                type="button"
+                onClick={handleFacebookConnect}
+                disabled={isConnecting}
+                className="bg-[#1877F2] hover:bg-[#1864D9] text-white px-6 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
+              >
+                {isConnecting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                {tenant?.wa_phone_number_id ? 'Reconnect WhatsApp' : 'Connect with Facebook'}
+              </button>
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5001/api';
+const BASE_URL = '/api';
 
 function getHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -35,6 +35,7 @@ export const api = {
   
   getTenant: () => fetchApi('/tenants/me'),
   updateTenant: (data: any) => fetchApi('/tenants/me', { method: 'PUT', body: JSON.stringify(data) }),
+  connectWhatsApp: (data: { accessToken: string }) => fetchApi('/tenants/whatsapp-connect', { method: 'POST', body: JSON.stringify(data) }),
   
   getKnowledge: () => fetchApi('/knowledge'),
   createKnowledge: (data: any) => fetchApi('/knowledge', { method: 'POST', body: JSON.stringify(data) }),

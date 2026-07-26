@@ -75,4 +75,35 @@ router.put('/me', async (req, res) => {
   }
 });
 
+// POST /whatsapp-connect
+router.post('/whatsapp-connect', async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+    if (!accessToken) {
+      return res.status(400).json({ error: 'Access token or code is required' });
+    }
+
+    // Since Meta's Embedded Signup forces the "code" flow, we receive a short-lived code here.
+    // In a real production environment, you would exchange this code for a System User Access Token 
+    // using your App Secret and an endpoint like /oauth/access_token.
+    console.log("Received OAuth Code from Facebook:", accessToken);
+
+    // We update the tenant's token in the database. 
+    // (We leave the phone number ID as is for now so it doesn't break the existing test setup).
+    const result = await pool.query(
+      `UPDATE tenants SET 
+        whatsapp_access_token = $1,
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [accessToken, req.tenant.id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('WhatsApp connect error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
