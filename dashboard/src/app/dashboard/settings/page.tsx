@@ -1,23 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Script from 'next/script';
 import { api } from '@/lib/api';
 import { Save, Loader2, CheckCircle2 } from 'lucide-react';
-
-// Declare FB globally for TypeScript
-declare global {
-  interface Window {
-    FB: any;
-    fbAsyncInit: any;
-  }
-}
 
 export default function SettingsPage() {
   const [tenant, setTenant] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
   const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
@@ -53,51 +43,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleFacebookConnect = () => {
-    if (typeof window === 'undefined' || !window.FB) {
-      showToast('Facebook SDK not loaded yet. Please wait a moment.', 'error');
-      return;
-    }
-
-    setIsConnecting(true);
-
-    window.FB.login((response: any) => {
-      // Use setTimeout to break out of the FB SDK call stack
-      // This prevents React from throwing a Cross-Origin Error if our code throws
-      setTimeout(async () => {
-        console.log("FB Login Raw Response:", response);
-        
-        if (response.authResponse) {
-          try {
-            // Facebook might return either 'accessToken' or 'code' depending on the configuration
-            const tokenOrCode = response.authResponse.accessToken || response.authResponse.code;
-            
-            if (!tokenOrCode) {
-              throw new Error("Facebook did not return an access token or code.");
-            }
-
-            const result = await api.connectWhatsApp({ accessToken: tokenOrCode });
-            setTenant({ ...tenant, wa_phone_number_id: result.whatsapp_phone_number_id });
-            showToast('WhatsApp connected successfully!');
-          } catch (error: any) {
-            console.error('Connection error:', error);
-            showToast(error.message || 'Failed to connect WhatsApp', 'error');
-          }
-        } else {
-          showToast('Facebook login cancelled.', 'error');
-        }
-        setIsConnecting(false);
-      }, 0);
-    }, {
-      config_id: process.env.NEXT_PUBLIC_FACEBOOK_CONFIG_ID,
-      response_type: 'code',
-      override_default_response_type: true,
-      extras: {
-        setup: {}
-      }
-    });
-  };
-
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>;
 
   return (
@@ -117,28 +62,23 @@ export default function SettingsPage() {
         <p className="text-zinc-400 text-sm mt-1">Configure your business details and AI behavior.</p>
       </div>
 
-      <Script 
-        src="https://connect.facebook.net/en_US/sdk.js" 
-        strategy="lazyOnload" 
-        onLoad={() => {
-          if (window.FB) {
-            window.FB.init({
-              appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
-              cookie: true,
-              xfbml: true,
-              version: 'v21.0'
-            });
-          }
-        }}
-      />
-
       <form onSubmit={handleSave} className="space-y-6">
         {/* Business Info */}
         <div className="glass-card rounded-2xl p-6 border-white/5">
           <h2 className="text-lg font-semibold text-white mb-4">Business Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-sm font-medium text-zinc-400">Client / Internal Name</label>
+              <input
+                type="text"
+                value={tenant?.client_name || ''}
+                onChange={(e) => setTenant({...tenant, client_name: e.target.value})}
+                className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                placeholder="e.g. Acme Corp"
+              />
+            </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-zinc-400">Business Name</label>
+              <label className="text-sm font-medium text-zinc-400">Public Business Name</label>
               <input
                 type="text"
                 value={tenant?.business_name || ''}
@@ -175,8 +115,8 @@ export default function SettingsPage() {
                 <label className="text-sm font-medium text-zinc-400">Receptionist Name</label>
                 <input
                   type="text"
-                  value={tenant?.ai_name || ''}
-                  onChange={(e) => setTenant({...tenant, ai_name: e.target.value})}
+                  value={tenant?.receptionist_name || ''}
+                  onChange={(e) => setTenant({...tenant, receptionist_name: e.target.value})}
                   className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
                   placeholder="e.g. Sarah"
                 />
@@ -184,21 +124,21 @@ export default function SettingsPage() {
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-zinc-400">Personality Type</label>
                 <select
-                  value={tenant?.ai_personality || 'professional'}
-                  onChange={(e) => setTenant({...tenant, ai_personality: e.target.value})}
+                  value={tenant?.receptionist_personality || 'professional'}
+                  onChange={(e) => setTenant({...tenant, receptionist_personality: e.target.value})}
                   className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500"
                 >
-                  <option value="professional">Professional & Polite</option>
-                  <option value="friendly">Friendly & Casual</option>
-                  <option value="enthusiastic">Enthusiastic & Energetic</option>
+                  <option value="Professional, friendly, and helpful">Professional & Polite</option>
+                  <option value="Friendly and casual">Friendly & Casual</option>
+                  <option value="Enthusiastic and energetic">Enthusiastic & Energetic</option>
                 </select>
               </div>
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-zinc-400">Custom System Prompt (Optional)</label>
               <textarea
-                value={tenant?.custom_prompt || ''}
-                onChange={(e) => setTenant({...tenant, custom_prompt: e.target.value})}
+                value={tenant?.system_prompt || ''}
+                onChange={(e) => setTenant({...tenant, system_prompt: e.target.value})}
                 className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 h-32 font-mono text-sm"
                 placeholder="Override the default behavior instructions here..."
               />
@@ -206,45 +146,32 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* WhatsApp Connection */}
+        {/* WhatsApp Manual Connection */}
         <div className="glass-card rounded-2xl p-6 border-white/5">
-          <h2 className="text-lg font-semibold text-white mb-4">WhatsApp Connection</h2>
-          <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-zinc-400 mb-1">Status</p>
-                {tenant?.wa_phone_number_id ? (
-                  <div className="flex items-center gap-2 text-emerald-400 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" /> Connected
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-amber-400 font-medium">
-                    <span className="w-2 h-2 rounded-full bg-amber-500" /> Not Connected
-                  </div>
-                )}
-              </div>
-              
-              <div className="text-right">
-                <p className="text-sm text-zinc-400 mb-1">Phone Number ID</p>
-                <p className="font-mono text-sm text-white bg-zinc-950 px-2 py-1 rounded">
-                  {tenant?.wa_phone_number_id || 'Not configured'}
-                </p>
-              </div>
+          <h2 className="text-lg font-semibold text-white mb-4">WhatsApp Cloud API</h2>
+          <p className="text-sm text-zinc-400 mb-6">
+            Configure the specific WhatsApp Phone Number ID and WABA ID for this client. The global system token handles authentication automatically.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-400">Phone Number ID</label>
+              <input
+                type="text"
+                value={tenant?.whatsapp_phone_number_id || ''}
+                onChange={(e) => setTenant({...tenant, whatsapp_phone_number_id: e.target.value})}
+                className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-white font-mono focus:outline-none focus:border-emerald-500"
+                placeholder="e.g. 101234567890123"
+              />
             </div>
-            
-            <div className="mt-6 flex flex-col items-start gap-3 border-t border-white/5 pt-4">
-              <p className="text-sm text-zinc-400">
-                Connect your WhatsApp Business Account to allow the AI Receptionist to send and receive messages.
-              </p>
-              <button
-                type="button"
-                onClick={handleFacebookConnect}
-                disabled={isConnecting}
-                className="bg-[#1877F2] hover:bg-[#1864D9] text-white px-6 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
-              >
-                {isConnecting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                {tenant?.wa_phone_number_id ? 'Reconnect WhatsApp' : 'Connect with Facebook'}
-              </button>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-zinc-400">WhatsApp Business Account ID</label>
+              <input
+                type="text"
+                value={tenant?.waba_id || ''}
+                onChange={(e) => setTenant({...tenant, waba_id: e.target.value})}
+                className="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-2 text-white font-mono focus:outline-none focus:border-emerald-500"
+                placeholder="e.g. 109876543210987"
+              />
             </div>
           </div>
         </div>

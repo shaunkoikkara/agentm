@@ -115,7 +115,7 @@ export default function ConversationsPage() {
                 }`}
               >
                 <div className="flex justify-between items-start mb-1">
-                  <span className="font-medium text-white truncate pr-2">{c.contact_name || c.contact_number}</span>
+                  <span className="font-medium text-white truncate pr-2">{c.contact_name || c.whatsapp_number}</span>
                   <span className="text-xs text-zinc-500 flex-shrink-0">
                     {c.updated_at ? formatTime(c.updated_at) : ''}
                   </span>
@@ -137,8 +137,8 @@ export default function ConversationsPage() {
             {/* Chat Header */}
             <div className="p-4 border-b border-white/5 bg-zinc-900/50 flex justify-between items-center">
               <div>
-                <h3 className="font-semibold text-white">{convDetails?.contact_name || convDetails?.contact_number}</h3>
-                <p className="text-xs text-zinc-400">{convDetails?.contact_number}</p>
+                <h3 className="font-semibold text-white">{convDetails?.contact_name || convDetails?.whatsapp_number}</h3>
+                <p className="text-xs text-zinc-400">{convDetails?.whatsapp_number}</p>
               </div>
               <button
                 onClick={handleTakeoverToggle}

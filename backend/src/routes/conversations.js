@@ -150,7 +150,7 @@ router.post('/:id/messages', async (req, res) => {
     
     // Get conversation and tenant details
     const convResult = await pool.query(
-      `SELECT c.*, ct.whatsapp_number, t.whatsapp_phone_number_id, t.whatsapp_access_token 
+      `SELECT c.*, ct.whatsapp_number, t.whatsapp_phone_number_id 
        FROM conversations c
        JOIN contacts ct ON c.contact_id = ct.id
        JOIN tenants t ON c.tenant_id = t.id
@@ -164,7 +164,7 @@ router.post('/:id/messages', async (req, res) => {
     
     const conv = convResult.rows[0];
     
-    if (!conv.whatsapp_phone_number_id || !conv.whatsapp_access_token) {
+    if (!conv.whatsapp_phone_number_id) {
       return res.status(400).json({ error: 'WhatsApp is not configured for this tenant' });
     }
     
@@ -172,8 +172,7 @@ router.post('/:id/messages', async (req, res) => {
     await whatsappService.sendTextMessage(
       conv.whatsapp_phone_number_id,
       conv.whatsapp_number,
-      content,
-      conv.whatsapp_access_token
+      content
     );
     
     // Save outbound message

@@ -26,6 +26,8 @@ router.post('/', async (req, res) => {
   try {
     const body = req.body;
     
+    console.log("🔥 WEBHOOK HIT SUCCESSFUL! Raw data payload received from Meta:", JSON.stringify(req.body, null, 2));
+    
     console.log('📩 Webhook POST received:', JSON.stringify(body, null, 2));
     
     if (body.object !== 'whatsapp_business_account') {
@@ -66,7 +68,8 @@ router.post('/', async (req, res) => {
     );
     
     if (tenantResult.rows.length === 0) {
-      console.log(`❌ No active tenant found for phone_number_id: ${phoneNumberId}`);
+      console.log(`⚠️ UNMAPPED LIVE WEBHOOK RECEIVED FROM ID: ${phoneNumberId}`);
+      console.log(`❌ No active tenant found in database matching this phone_number_id.`);
       return;
     }
     
@@ -168,8 +171,7 @@ router.post('/', async (req, res) => {
     await whatsappService.sendTextMessage(
       phoneNumberId,
       customerNumber,
-      aiResponseText,
-      tenant.whatsapp_access_token
+      aiResponseText
     );
     
     console.log(`Successfully processed and replied to message from ${customerNumber}`);

@@ -26,7 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tenants', tenantRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
 app.use('/api/conversations', conversationRoutes);
-app.use('/api/webhook', webhookRoutes);
+app.use('/api/webhooks/whatsapp', webhookRoutes);
 
 // Privacy Policy (required by Meta)
 app.get('/privacy', (req, res) => {
@@ -42,6 +42,14 @@ app.get('/privacy', (req, res) => {
     <p>Conversation data is retained for service improvement and can be deleted upon request.</p>
     <h2>Contact</h2>
     <p>For questions about this policy, contact us through our platform.</p>
+  </body></html>`);
+});
+
+// Data Deletion Instructions (required by Meta for Live Mode)
+app.get('/data-deletion-instructions', (req, res) => {
+  res.send(`<html><head><title>Data Deletion Instructions</title></head><body>
+    <h1>Data Deletion Instructions</h1>
+    <p>To request the deletion of data processed by this application, please email your account request to our support inbox.</p>
   </body></html>`);
 });
 
