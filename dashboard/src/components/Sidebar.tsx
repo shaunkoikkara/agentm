@@ -17,15 +17,15 @@ export function Sidebar() {
   const { logout } = useAuth();
 
   return (
-    <div className="flex flex-col w-64 bg-zinc-900/50 backdrop-blur-xl border-r border-white/10 h-screen transition-all duration-300">
-      <div className="flex items-center gap-3 px-6 py-8 border-b border-white/10">
-        <div className="bg-gradient-to-tr from-blue-500 to-violet-500 p-2 rounded-xl">
-          <Bot className="w-6 h-6 text-white" />
+    <div className="flex flex-col w-64 bg-white border-r border-slate-200/80 h-screen transition-all duration-300 shadow-sm">
+      <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-100">
+        <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2.5 rounded-xl shadow-md shadow-indigo-500/20">
+          <Bot className="w-5 h-5 text-white" />
         </div>
-        <span className="font-semibold text-lg tracking-wide text-zinc-100">AI Receptionist</span>
+        <span className="font-bold text-lg tracking-tight text-slate-900">AgentM</span>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard');
           const Icon = item.icon;
@@ -36,24 +36,24 @@ export function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive 
-                  ? 'bg-gradient-to-r from-blue-500/20 to-violet-500/20 text-blue-400 border border-blue-500/20' 
-                  : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'
+                  ? 'bg-indigo-50/80 text-indigo-600 font-semibold border border-indigo-100/80 shadow-xs' 
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'group-hover:text-zinc-200'}`} />
-              <span className="font-medium">{item.label}</span>
+              <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-700'}`} />
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-slate-100">
         <button
           onClick={logout}
-          className="flex items-center gap-3 w-full px-4 py-3 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors duration-200"
+          className="flex items-center gap-3 w-full px-4 py-3 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors duration-200 font-medium"
         >
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
+          <LogOut className="w-5 h-5 text-slate-400" />
+          <span>Logout</span>
         </button>
       </div>
     </div>

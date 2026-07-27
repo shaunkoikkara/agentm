@@ -72,12 +72,12 @@ export default function KnowledgePage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">Knowledge Base</h1>
-          <p className="text-zinc-400 text-sm mt-1">Train your AI with FAQs, policies, and service details.</p>
+          <h1 className="text-2xl font-bold text-slate-900">Knowledge Base</h1>
+          <p className="text-slate-500 text-sm mt-1">Train your AI with FAQs, policies, and service details.</p>
         </div>
         <button
           onClick={() => openModal()}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-colors text-sm font-medium shadow-lg shadow-blue-500/25"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all text-sm font-semibold shadow-md shadow-indigo-500/20"
         >
           <Plus className="w-4 h-4" /> Add Entry
         </button>
@@ -85,64 +85,64 @@ export default function KnowledgePage() {
 
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
         </div>
       ) : items.length === 0 ? (
-        <div className="glass-card rounded-2xl p-12 flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
-            <BookOpen className="w-8 h-8 text-blue-400" />
+        <div className="glass-card bg-white rounded-2xl p-12 flex flex-col items-center text-center border-slate-200/80 shadow-sm">
+          <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 border border-indigo-100">
+            <BookOpen className="w-8 h-8 text-indigo-600" />
           </div>
-          <h3 className="text-xl font-semibold text-white mb-2">No knowledge entries yet</h3>
-          <p className="text-zinc-400 max-w-sm mb-6">Add FAQs and business information to help your AI receptionist answer customer questions accurately.</p>
+          <h3 className="text-xl font-bold text-slate-900 mb-2">No knowledge entries yet</h3>
+          <p className="text-slate-500 max-w-sm mb-6 text-sm">Add FAQs and business information to help your AI receptionist answer customer questions accurately.</p>
           <button
             onClick={() => openModal()}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-2.5 rounded-xl transition-colors font-medium"
+            className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl transition-all font-semibold text-sm shadow-sm"
           >
             Create your first entry
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {items.map((item) => (
-            <div key={item.id} className="glass-card rounded-xl p-5 hover:bg-white/10 transition-colors group">
+            <div key={item.id} className="glass-card bg-white rounded-2xl p-6 border-slate-200/80 shadow-sm hover:shadow-md transition-all group">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 text-xs font-medium rounded-md bg-blue-500/20 text-blue-300 uppercase tracking-wider">
+                  <span className="px-3 py-1 text-[11px] font-semibold rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase tracking-wider">
                     {item.type}
                   </span>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openModal(item)} className="p-1.5 text-zinc-400 hover:text-white bg-zinc-800 rounded-md transition-colors">
+                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => openModal(item)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(item.id)} className="p-1.5 text-zinc-400 hover:text-red-400 bg-zinc-800 rounded-md transition-colors">
+                  <button onClick={() => handleDelete(item.id)} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
-              <p className="text-zinc-400 text-sm line-clamp-3 leading-relaxed">{item.content}</p>
+              <h3 className="text-base font-bold text-slate-900 mb-2">{item.title}</h3>
+              <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed font-normal">{item.content}</p>
             </div>
           ))}
         </div>
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-white/10">
-              <h2 className="text-xl font-semibold text-white">{editingId ? 'Edit Entry' : 'Add New Entry'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-white transition-colors">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50/50">
+              <h2 className="text-lg font-bold text-slate-900">{editingId ? 'Edit Entry' : 'Add New Entry'}</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-700 transition-colors p-1 rounded-lg hover:bg-slate-100">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-1.5">Type</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
                 >
                   <option value="faq">FAQ</option>
                   <option value="service">Service</option>
@@ -151,38 +151,38 @@ export default function KnowledgePage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-1.5">Title / Question</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Title / Question</label>
                 <input
                   type="text"
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all"
                   placeholder="e.g. What are your opening hours?"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-1.5">Content / Answer</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Content / Answer</label>
                 <textarea
                   required
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 min-h-[120px] resize-y"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 transition-all min-h-[120px] resize-y"
                   placeholder="We are open Monday to Friday from 9am to 5pm."
                 />
               </div>
-              <div className="pt-4 flex justify-end gap-3">
+              <div className="pt-4 flex justify-end gap-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl flex items-center gap-2 transition-colors text-sm font-medium disabled:opacity-50"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all text-sm font-semibold shadow-sm shadow-indigo-500/20 disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Entry
