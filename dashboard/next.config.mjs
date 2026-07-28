@@ -1,3 +1,10 @@
+const getBackendUrl = () => {
+  const url = process.env.BACKEND_URL;
+  if (!url) return 'http://localhost:5001';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `https://${url}`;
+};
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -5,7 +12,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api/:path*` : 'http://localhost:5001/api/:path*'
+        destination: `${getBackendUrl()}/api/:path*`
       }
     ]
   }
