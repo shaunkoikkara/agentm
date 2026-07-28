@@ -41,7 +41,7 @@ export default function DashboardHome() {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-1">
           Welcome back, {tenant?.business_name || 'Admin'}
@@ -51,7 +51,11 @@ export default function DashboardHome() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {statCards.map((stat, i) => (
-          <div key={i} className="glass-card rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-md group">
+          <Link 
+            key={i} 
+            href="/dashboard/conversations" 
+            className="glass-card rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-md group block cursor-pointer"
+          >
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-xl ${stat.bg}`}>
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -64,7 +68,7 @@ export default function DashboardHome() {
             <div className="mt-4 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
               <div className={`h-full ${stat.barBg} transition-all duration-1000 ease-out`} style={{ width: '70%' }} />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

@@ -37,9 +37,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="glass-card bg-white/90 backdrop-blur-xl rounded-2xl p-8 border border-slate-200/80 shadow-xl">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center mb-4 shadow-md shadow-indigo-500/20">
-              <Bot className="w-7 h-7 text-white" />
-            </div>
+            <img src="/brand-logo.png" alt="BusDesk Logo" className="w-14 h-14 object-contain mb-3" />
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome Back</h1>
             <p className="text-slate-500 text-sm mt-1">Sign in to BusDesk AI Receptionist</p>
           </div>

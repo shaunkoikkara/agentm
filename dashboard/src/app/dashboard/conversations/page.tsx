@@ -91,6 +91,37 @@ export default function ConversationsPage() {
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const getAvatarDetails = (name?: string, number?: string) => {
+    const text = name && name !== 'Unknown' ? name : number || '?';
+    const cleanStr = text.replace(/[^a-zA-Z0-9]/g, '');
+    let initials = 'C';
+    if (name && name !== 'Unknown') {
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[1][0]).toUpperCase();
+      } else if (parts[0]) {
+        initials = parts[0].substring(0, 2).toUpperCase();
+      }
+    } else if (cleanStr.length >= 2) {
+      initials = cleanStr.substring(cleanStr.length - 2).toUpperCase();
+    }
+
+    const gradients = [
+      'from-blue-600 to-indigo-600',
+      'from-emerald-500 to-teal-700',
+      'from-violet-600 to-purple-600',
+      'from-amber-500 to-orange-600',
+      'from-rose-500 to-pink-600',
+      'from-cyan-600 to-blue-700'
+    ];
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      hash = text.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const bgGradient = gradients[Math.abs(hash) % gradients.length];
+    return { initials, bgGradient };
+  };
+
   return (
     <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)] flex gap-4 animate-in fade-in duration-500">
       {/* Left Sidebar (Inbox List) */}
@@ -108,28 +139,36 @@ export default function ConversationsPage() {
           ) : conversations.length === 0 ? (
             <div className="p-8 text-center text-slate-400 text-sm font-medium">No conversations found</div>
           ) : (
-            conversations.map((c) => (
-              <div
-                key={c.id}
-                onClick={() => setSelectedId(c.id)}
-                className={`p-4 cursor-pointer transition-all ${
-                  selectedId === c.id 
-                    ? 'bg-indigo-50/80 border-l-4 border-l-indigo-600' 
-                    : 'hover:bg-slate-50 border-l-4 border-l-transparent'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <span className="font-semibold text-slate-900 truncate pr-2 text-sm">{c.contact_name || c.whatsapp_number}</span>
-                  <span className="text-[11px] text-slate-400 font-medium flex-shrink-0">
-                    {c.updated_at ? formatTime(c.updated_at) : ''}
-                  </span>
+            conversations.map((c) => {
+              const avatar = getAvatarDetails(c.contact_name, c.whatsapp_number);
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => setSelectedId(c.id)}
+                  className={`p-4 cursor-pointer transition-all flex items-center gap-3.5 ${
+                    selectedId === c.id 
+                      ? 'bg-indigo-50/80 border-l-4 border-l-indigo-600' 
+                      : 'hover:bg-slate-50 border-l-4 border-l-transparent'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${avatar.bgGradient} text-white flex items-center justify-center font-bold text-xs shadow-xs flex-shrink-0`}>
+                    {avatar.initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-semibold text-slate-900 truncate pr-2 text-sm">{c.contact_name || c.whatsapp_number}</span>
+                      <span className="text-[11px] text-slate-400 font-medium flex-shrink-0">
+                        {c.updated_at ? formatTime(c.updated_at) : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`w-2 h-2 rounded-full ${c.is_human_takeover ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                      <span className="text-xs text-slate-500 font-medium capitalize">{c.is_human_takeover ? 'Human Mode' : 'AI Mode'}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className={`w-2 h-2 rounded-full ${c.is_human_takeover ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                  <span className="text-xs text-slate-500 font-medium capitalize">{c.is_human_takeover ? 'Human Mode' : 'AI Mode'}</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -150,10 +189,20 @@ export default function ConversationsPage() {
                 >
                   ←
                 </button>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base">{convDetails?.contact_name || convDetails?.whatsapp_number}</h3>
-                  <p className="text-xs text-slate-500 font-mono mt-0.5">{convDetails?.whatsapp_number}</p>
-                </div>
+                {(() => {
+                  const avatar = getAvatarDetails(convDetails?.contact_name, convDetails?.whatsapp_number);
+                  return (
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${avatar.bgGradient} text-white flex items-center justify-center font-bold text-sm shadow-xs`}>
+                        {avatar.initials}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-900 text-base">{convDetails?.contact_name || convDetails?.whatsapp_number}</h3>
+                        <p className="text-xs text-slate-500 font-mono mt-0.5">{convDetails?.whatsapp_number}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
               <button
                 onClick={handleTakeoverToggle}
@@ -171,12 +220,13 @@ export default function ConversationsPage() {
             <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40">
               {messages.map((m, i) => {
                 const isOutbound = m.direction === 'outbound';
+                const avatar = getAvatarDetails(convDetails?.contact_name, convDetails?.whatsapp_number);
                 return (
                   <div key={i} className={`flex flex-col ${isOutbound ? 'items-end' : 'items-start'}`}>
                     <div className="flex items-end gap-2 max-w-[80%]">
                       {!isOutbound && (
-                        <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300/50 flex items-center justify-center flex-shrink-0 shadow-2xs">
-                          <User className="w-4 h-4 text-slate-600" />
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${avatar.bgGradient} text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0 shadow-2xs`}>
+                          {avatar.initials}
                         </div>
                       )}
                       <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${
