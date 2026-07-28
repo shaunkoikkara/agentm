@@ -8,13 +8,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'AgentM - AI Receptionist Dashboard',
+  title: 'BusDesk - AI Receptionist Dashboard',
   description: 'Manage your WhatsApp AI Receptionist platform',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'AgentM',
+    title: 'BusDesk',
   },
   icons: {
     icon: '/icon-192.png',

@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "AgentM - AI Receptionist",
-  "short_name": "AgentM",
+  "name": "BusDesk - AI Receptionist",
+  "short_name": "BusDesk",
   "description": "Manage your WhatsApp AI Receptionist platform",
   "start_url": "/",
   "scope": "/",

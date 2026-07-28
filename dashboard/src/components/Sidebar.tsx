@@ -12,17 +12,18 @@ const navItems = [
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const { logout } = useAuth();
 
   return (
-    <div className="flex flex-col w-64 bg-white border-r border-slate-200/80 h-screen transition-all duration-300 shadow-sm">
+    <div className="flex flex-col w-64 bg-white border-r border-slate-200/80 h-full transition-all duration-300 shadow-sm">
       <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-100">
-        <div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2.5 rounded-xl shadow-md shadow-indigo-500/20">
-          <Bot className="w-5 h-5 text-white" />
-        </div>
-        <span className="font-bold text-lg tracking-tight text-slate-900">AgentM</span>
+        <img src="/brand-logo.png" alt="BusDesk Logo" className="w-8 h-8 object-contain" />
+        <span className="font-bold text-lg tracking-tight">
+          <span className="text-blue-700 font-extrabold">Bus</span>
+          <span className="text-emerald-600 font-bold">Desk</span>
+        </span>
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -34,6 +35,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onClose && onClose()}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive 
                   ? 'bg-indigo-50/80 text-indigo-600 font-semibold border border-indigo-100/80 shadow-xs' 
@@ -49,7 +51,10 @@ export function Sidebar() {
 
       <div className="p-4 border-t border-slate-100">
         <button
-          onClick={logout}
+          onClick={() => {
+            if (onClose) onClose();
+            logout();
+          }}
           className="flex items-center gap-3 w-full px-4 py-3 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors duration-200 font-medium"
         >
           <LogOut className="w-5 h-5 text-slate-400" />

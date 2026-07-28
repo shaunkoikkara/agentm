@@ -92,9 +92,11 @@ export default function ConversationsPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-6rem)] flex gap-4 animate-in fade-in duration-500">
-      {/* Left Sidebar */}
-      <div className="w-1/3 glass-card rounded-2xl flex flex-col overflow-hidden border-slate-200/80 shadow-sm bg-white">
+    <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-6rem)] flex gap-4 animate-in fade-in duration-500">
+      {/* Left Sidebar (Inbox List) */}
+      <div className={`w-full md:w-1/3 glass-card rounded-2xl flex flex-col overflow-hidden border-slate-200/80 shadow-sm bg-white ${
+        selectedId ? 'hidden md:flex' : 'flex'
+      }`}>
         <div className="p-4 border-b border-slate-100 bg-slate-50/50">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
             <Phone className="w-4 h-4 text-indigo-600" /> Inbox
@@ -133,14 +135,25 @@ export default function ConversationsPage() {
       </div>
 
       {/* Right Chat Area */}
-      <div className="flex-1 glass-card rounded-2xl flex flex-col overflow-hidden border-slate-200/80 shadow-sm bg-white">
+      <div className={`flex-1 glass-card rounded-2xl flex flex-col overflow-hidden border-slate-200/80 shadow-sm bg-white ${
+        !selectedId ? 'hidden md:flex' : 'flex'
+      }`}>
         {selectedId ? (
           <>
             {/* Chat Header */}
             <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">{convDetails?.contact_name || convDetails?.whatsapp_number}</h3>
-                <p className="text-xs text-slate-500 font-mono mt-0.5">{convDetails?.whatsapp_number}</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedId(null)}
+                  className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors"
+                  aria-label="Back to Inbox"
+                >
+                  ←
+                </button>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">{convDetails?.contact_name || convDetails?.whatsapp_number}</h3>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">{convDetails?.whatsapp_number}</p>
+                </div>
               </div>
               <button
                 onClick={handleTakeoverToggle}
