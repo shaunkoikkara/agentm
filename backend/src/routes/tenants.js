@@ -12,7 +12,7 @@ router.get('/me', async (req, res) => {
       `SELECT id, email, client_name, business_name, business_category, business_description, 
        address, phone, website, business_hours, receptionist_name, 
        receptionist_personality, system_prompt, whatsapp_phone_number_id, 
-       waba_id, is_active, created_at, updated_at
+       waba_id, coexistence_enabled, is_active, created_at, updated_at
        FROM tenants WHERE id = $1`,
       [req.tenant.id]
     );
@@ -35,7 +35,7 @@ router.put('/me', async (req, res) => {
       client_name, business_name, business_category, business_description,
       address, phone, website, business_hours, receptionist_name,
       receptionist_personality, system_prompt, whatsapp_phone_number_id,
-      waba_id
+      waba_id, coexistence_enabled
     } = req.body;
 
     const result = await pool.query(
@@ -53,17 +53,19 @@ router.put('/me', async (req, res) => {
         system_prompt = COALESCE($11, system_prompt),
         whatsapp_phone_number_id = COALESCE($12, whatsapp_phone_number_id),
         waba_id = COALESCE($13, waba_id),
+        coexistence_enabled = COALESCE($14, coexistence_enabled),
         updated_at = CURRENT_TIMESTAMP
-       WHERE id = $14
+       WHERE id = $15
        RETURNING id, email, client_name, business_name, business_category, business_description, 
        address, phone, website, business_hours, receptionist_name, 
        receptionist_personality, system_prompt, whatsapp_phone_number_id, 
-       waba_id, is_active, created_at, updated_at`,
+       waba_id, coexistence_enabled, is_active, created_at, updated_at`,
       [
         client_name, business_name, business_category, business_description, address, phone, 
         website, business_hours ? JSON.stringify(business_hours) : null, 
         receptionist_name, receptionist_personality, 
-        system_prompt, whatsapp_phone_number_id, waba_id, 
+        system_prompt, whatsapp_phone_number_id, waba_id,
+        coexistence_enabled,
         req.tenant.id
       ]
     );
@@ -75,7 +77,7 @@ router.put('/me', async (req, res) => {
   }
 });
 
-// POST /whatsapp-connect
+// POST /whatsapp-connect (Manual credentials entry)
 router.post('/whatsapp-connect', async (req, res) => {
   try {
     const { client_name, whatsapp_phone_number_id, waba_id } = req.body;
@@ -91,6 +93,7 @@ router.post('/whatsapp-connect', async (req, res) => {
         client_name = COALESCE($1, client_name),
         whatsapp_phone_number_id = $2,
         waba_id = $3,
+        coexistence_enabled = true,
         updated_at = CURRENT_TIMESTAMP
        WHERE id = $4
        RETURNING *`,
@@ -101,6 +104,35 @@ router.post('/whatsapp-connect', async (req, res) => {
   } catch (error) {
     console.error('WhatsApp connect error:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /embedded-signup (Meta Facebook Embedded Signup SDK Callback)
+router.post('/embedded-signup', async (req, res) => {
+  try {
+    const { code, waba_id, phone_number_id } = req.body;
+
+    console.log("Meta Embedded Signup Callback Received:", { waba_id, phone_number_id, codeLength: code?.length });
+
+    // Save Meta credentials & enable coexistence mode
+    const result = await pool.query(
+      `UPDATE tenants SET 
+        waba_id = COALESCE($1, waba_id),
+        whatsapp_phone_number_id = COALESCE($2, whatsapp_phone_number_id),
+        coexistence_enabled = true,
+        updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
+       RETURNING id, email, business_name, whatsapp_phone_number_id, waba_id, coexistence_enabled`,
+      [waba_id, phone_number_id, req.tenant.id]
+    );
+
+    res.json({
+      message: 'WhatsApp Business Account linked via Meta Embedded Signup successfully!',
+      tenant: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Embedded signup error:', error);
+    res.status(500).json({ error: 'Failed to process Meta Embedded Signup callback' });
   }
 });
 

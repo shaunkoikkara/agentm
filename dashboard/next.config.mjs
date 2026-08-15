@@ -1,6 +1,6 @@
 const getBackendUrl = () => {
   const url = process.env.BACKEND_URL;
-  if (!url) return 'http://localhost:5001';
+  if (!url) return 'http://localhost:5000';
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
   return `https://${url}`;
 };

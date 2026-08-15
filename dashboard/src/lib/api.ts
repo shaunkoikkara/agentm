@@ -19,7 +19,7 @@ async function fetchApi(endpoint: string, options: RequestInit = {}) {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'API Error' }));
-    throw new Error(error.message || `HTTP error ${response.status}`);
+    throw new Error(error.error || error.message || `HTTP error ${response.status}`);
   }
 
   // Handle empty responses
@@ -36,6 +36,7 @@ export const api = {
   getTenant: () => fetchApi('/tenants/me'),
   updateTenant: (data: any) => fetchApi('/tenants/me', { method: 'PUT', body: JSON.stringify(data) }),
   connectWhatsApp: (data: { accessToken: string }) => fetchApi('/tenants/whatsapp-connect', { method: 'POST', body: JSON.stringify(data) }),
+  connectEmbeddedSignup: (data: any) => fetchApi('/tenants/embedded-signup', { method: 'POST', body: JSON.stringify(data) }),
   
   getKnowledge: () => fetchApi('/knowledge'),
   createKnowledge: (data: any) => fetchApi('/knowledge', { method: 'POST', body: JSON.stringify(data) }),

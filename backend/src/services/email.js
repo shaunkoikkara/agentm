@@ -10,7 +10,7 @@ const sendOtpEmail = async (email, code) => {
   console.log(`========================================\n`);
 
   try {
-    const sender = process.env.EMAIL_FROM || 'BusDesk <onboarding@resend.dev>';
+    const sender = process.env.EMAIL_FROM || 'BusDesk <noreply@busdesk.in>';
     const { data, error } = await resend.emails.send({
       from: sender,
       to: email,
