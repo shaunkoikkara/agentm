@@ -40,7 +40,7 @@ export default function SettingsPage() {
     window.fbAsyncInit = function () {
       if (window.FB) {
         window.FB.init({
-          appId: process.env.NEXT_PUBLIC_META_APP_ID || '1234567890',
+          appId: process.env.NEXT_PUBLIC_META_APP_ID || '28295769726675225',
           cookie: true,
           xfbml: true,
           version: 'v18.0'
