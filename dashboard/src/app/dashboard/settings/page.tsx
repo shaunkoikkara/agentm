@@ -88,6 +88,7 @@ export default function SettingsPage() {
         config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID || '',
         response_type: 'code',
         override_default_response_type: true,
+        scope: 'whatsapp_business_management, whatsapp_business_messaging',
         extras: {
           setup: {},
           featureType: 'whatsapp_coexistence'
