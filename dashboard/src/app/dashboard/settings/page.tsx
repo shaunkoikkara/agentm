@@ -43,7 +43,7 @@ export default function SettingsPage() {
           appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '28295769726675225',
           cookie: true,
           xfbml: true,
-          version: 'v18.0'
+          version: 'v21.0'
         });
       }
     };
@@ -91,7 +91,8 @@ export default function SettingsPage() {
         scope: 'whatsapp_business_management, whatsapp_business_messaging',
         extras: {
           setup: {},
-          featureType: 'whatsapp_coexistence'
+          featureType: 'whatsapp_business_app_onboarding',
+          sessionInfoVersion: '3'
         }
       });
     } else {
