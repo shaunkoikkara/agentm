@@ -163,6 +163,21 @@ router.post('/embedded-signup', async (req, res) => {
 
     console.log("Successfully extracted real IDs:", { waba_id: realWabaId, phone_number_id: realPhoneNumberId });
 
+    // 3.5 Subscribe the App to the WABA's webhooks
+    console.log("Subscribing App to WABA webhooks...");
+    const subRes = await fetch(`https://graph.facebook.com/v21.0/${realWabaId}/subscribed_apps`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.META_PERMANENT_SYSTEM_TOKEN}`
+      }
+    });
+    const subData = await subRes.json();
+    console.log("WABA Subscription Result:", JSON.stringify(subData));
+    
+    if (!subRes.ok || !subData.success) {
+      throw new Error(`Failed to subscribe app to WABA webhooks: ${JSON.stringify(subData)}`);
+    }
+
     // 4. Save Meta credentials to database
     const result = await pool.query(
       `UPDATE tenants SET 
