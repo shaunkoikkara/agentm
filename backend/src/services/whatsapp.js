@@ -40,6 +40,39 @@ const sendTextMessage = async (phoneNumberId, to, text) => {
   }
 };
 
+const downloadMedia = async (mediaId) => {
+  try {
+    const accessToken = process.env.META_PERMANENT_SYSTEM_TOKEN;
+    if (!accessToken) throw new Error("META_PERMANENT_SYSTEM_TOKEN is not configured.");
+
+    // Step 1: Retrieve Media URL
+    const metaUrl = `https://graph.facebook.com/v21.0/${mediaId}`;
+    const metaRes = await fetch(metaUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    const metaData = await metaRes.json();
+    if (!metaRes.ok || !metaData.url) {
+      throw new Error(metaData.error?.message || 'Failed to fetch media metadata from Meta');
+    }
+
+    // Step 2: Download Media Binary
+    const mediaRes = await fetch(metaData.url, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    if (!mediaRes.ok) throw new Error('Failed to download media binary from Meta CDN');
+
+    const arrayBuffer = await mediaRes.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    return {
+      base64,
+      mimeType: metaData.mime_type || 'audio/ogg'
+    };
+  } catch (error) {
+    console.error('Error downloading Meta media:', error);
+    throw error;
+  }
+};
+
 const verifyWebhook = (mode, token, challenge) => {
   const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
   
@@ -52,5 +85,6 @@ const verifyWebhook = (mode, token, challenge) => {
 
 module.exports = {
   sendTextMessage,
+  downloadMedia,
   verifyWebhook
 };

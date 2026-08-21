@@ -51,11 +51,27 @@ router.post('/', async (req, res) => {
     const phoneNumberId = value.metadata.phone_number_id;
     const message = messages[0];
     const customerNumber = message.from;
-    const messageBody = message.text?.body;
+    let messageBody = message.text?.body;
     const whatsappMessageId = message.id;
     
+    // Handle incoming WhatsApp Voice Notes / Audio messages
+    if (message.type === 'audio' || message.type === 'voice') {
+      const mediaId = message.audio?.id || message.voice?.id;
+      if (mediaId) {
+        console.log(`🎙️ Voice note received! Processing Media ID: ${mediaId}`);
+        try {
+          const media = await whatsappService.downloadMedia(mediaId);
+          const transcript = await aiService.transcribeAudio(media.base64, media.mimeType);
+          messageBody = `🎙️ [Voice Note]: "${transcript}"`;
+        } catch (err) {
+          console.error('Error processing incoming voice note:', err);
+          messageBody = `🎙️ [Voice Note Received]`;
+        }
+      }
+    }
+    
     if (!messageBody) {
-      console.log('⚠️ Received non-text message, ignoring for now');
+      console.log('⚠️ Received unsupported message type, ignoring for now');
       return;
     }
     

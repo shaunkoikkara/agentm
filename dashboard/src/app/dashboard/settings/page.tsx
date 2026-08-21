@@ -40,7 +40,7 @@ export default function SettingsPage() {
     window.fbAsyncInit = function () {
       if (window.FB) {
         window.FB.init({
-          appId: process.env.NEXT_PUBLIC_META_APP_ID || '28295769726675225',
+          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '28295769726675225',
           cookie: true,
           xfbml: true,
           version: 'v18.0'
@@ -85,7 +85,7 @@ export default function SettingsPage() {
           showToast('Meta signup canceled by user', 'error');
         }
       }, {
-        config_id: process.env.NEXT_PUBLIC_META_CONFIG_ID || '',
+        config_id: process.env.NEXT_PUBLIC_FACEBOOK_CONFIG_ID || '1657735718644837',
         response_type: 'code',
         override_default_response_type: true,
         scope: 'whatsapp_business_management, whatsapp_business_messaging',

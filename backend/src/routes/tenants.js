@@ -110,29 +110,78 @@ router.post('/whatsapp-connect', async (req, res) => {
 // POST /embedded-signup (Meta Facebook Embedded Signup SDK Callback)
 router.post('/embedded-signup', async (req, res) => {
   try {
-    const { code, waba_id, phone_number_id } = req.body;
+    const { code } = req.body;
+    
+    // Support the demo fallback if no code is provided but fake IDs are
+    if (!code && req.body.waba_id && req.body.phone_number_id) {
+      const result = await pool.query(
+        `UPDATE tenants SET waba_id = $1, whatsapp_phone_number_id = $2, coexistence_enabled = true, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, email, business_name, whatsapp_phone_number_id, waba_id, coexistence_enabled`,
+        [req.body.waba_id, req.body.phone_number_id, req.tenant.id]
+      );
+      return res.json({ message: 'Demo WhatsApp Account linked!', tenant: result.rows[0] });
+    }
 
-    console.log("Meta Embedded Signup Callback Received:", { waba_id, phone_number_id, codeLength: code?.length });
+    if (!code) {
+      return res.status(400).json({ error: 'Authorization code is required' });
+    }
 
-    // Save Meta credentials & enable coexistence mode
+    console.log("Meta Embedded Signup Callback Received. Exchanging code...");
+
+    // 1. Exchange Code for User Access Token
+    const tokenRes = await fetch(`https://graph.facebook.com/v21.0/oauth/access_token?client_id=${process.env.META_APP_ID}&client_secret=${process.env.META_APP_SECRET}&code=${code}`);
+    const tokenData = await tokenRes.json();
+    
+    if (tokenData.error) {
+      console.error("Token Exchange Error:", tokenData.error);
+      throw new Error("Failed to exchange code for token.");
+    }
+    const userAccessToken = tokenData.access_token;
+
+    // 2. Debug Token to find WABA ID from granular scopes
+    const debugRes = await fetch(`https://graph.facebook.com/v21.0/debug_token?input_token=${userAccessToken}&access_token=${process.env.META_APP_ID}|${process.env.META_APP_SECRET}`);
+    const debugData = await debugRes.json();
+    
+    if (debugData.error || !debugData.data) {
+      throw new Error("Failed to debug token.");
+    }
+
+    const scopes = debugData.data.granular_scopes || [];
+    const wabaScope = scopes.find(s => s.scope === 'whatsapp_business_management');
+    if (!wabaScope || !wabaScope.target_ids || wabaScope.target_ids.length === 0) {
+      throw new Error("No WhatsApp Business Account found in permissions.");
+    }
+    const realWabaId = wabaScope.target_ids[0];
+
+    // 3. Fetch Phone Number ID
+    const phoneRes = await fetch(`https://graph.facebook.com/v21.0/${realWabaId}/phone_numbers?access_token=${userAccessToken}`);
+    const phoneData = await phoneRes.json();
+    
+    if (phoneData.error || !phoneData.data || phoneData.data.length === 0) {
+      throw new Error("No phone numbers found for this WABA.");
+    }
+    const realPhoneNumberId = phoneData.data[0].id;
+
+    console.log("Successfully extracted real IDs:", { waba_id: realWabaId, phone_number_id: realPhoneNumberId });
+
+    // 4. Save Meta credentials to database
     const result = await pool.query(
       `UPDATE tenants SET 
-        waba_id = COALESCE($1, waba_id),
-        whatsapp_phone_number_id = COALESCE($2, whatsapp_phone_number_id),
+        waba_id = $1,
+        whatsapp_phone_number_id = $2,
         coexistence_enabled = true,
         updated_at = CURRENT_TIMESTAMP
        WHERE id = $3
        RETURNING id, email, business_name, whatsapp_phone_number_id, waba_id, coexistence_enabled`,
-      [waba_id, phone_number_id, req.tenant.id]
+      [realWabaId, realPhoneNumberId, req.tenant.id]
     );
 
     res.json({
-      message: 'WhatsApp Business Account linked via Meta Embedded Signup successfully!',
+      message: 'WhatsApp Business Account linked securely!',
       tenant: result.rows[0]
     });
   } catch (error) {
-    console.error('Embedded signup error:', error);
-    res.status(500).json({ error: 'Failed to process Meta Embedded Signup callback' });
+    console.error('Embedded signup OAuth error:', error);
+    res.status(500).json({ error: error.message || 'Failed to process Meta Embedded Signup callback' });
   }
 });
 
