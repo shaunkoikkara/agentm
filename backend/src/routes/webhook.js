@@ -187,7 +187,8 @@ router.post('/', async (req, res) => {
     await whatsappService.sendTextMessage(
       phoneNumberId,
       customerNumber,
-      aiResponseText
+      aiResponseText,
+      tenant.system_user_token
     );
     
     console.log(`Successfully processed and replied to message from ${customerNumber}`);

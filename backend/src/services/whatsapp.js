@@ -1,12 +1,12 @@
 require('dotenv').config();
 
-const sendTextMessage = async (phoneNumberId, to, text) => {
+const sendTextMessage = async (phoneNumberId, to, text, accessTokenParam = null) => {
   try {
     const url = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
-    const accessToken = process.env.META_PERMANENT_SYSTEM_TOKEN;
+    const accessToken = accessTokenParam || process.env.META_PERMANENT_SYSTEM_TOKEN;
     
     if (!accessToken) {
-      throw new Error("META_PERMANENT_SYSTEM_TOKEN is not configured in environment.");
+      throw new Error("Meta access token is not configured.");
     }
 
     const response = await fetch(url, {

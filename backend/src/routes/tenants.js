@@ -184,10 +184,11 @@ router.post('/embedded-signup', async (req, res) => {
         waba_id = $1,
         whatsapp_phone_number_id = $2,
         coexistence_enabled = true,
+        system_user_token = $3,
         updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3
-       RETURNING id, email, business_name, whatsapp_phone_number_id, waba_id, coexistence_enabled`,
-      [realWabaId, realPhoneNumberId, req.tenant.id]
+       WHERE id = $4
+       RETURNING id, email, business_name, whatsapp_phone_number_id, waba_id, coexistence_enabled, system_user_token`,
+      [realWabaId, realPhoneNumberId, userAccessToken, req.tenant.id]
     );
 
     res.json({
