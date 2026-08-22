@@ -157,7 +157,7 @@ router.post('/embedded-signup', async (req, res) => {
     const phoneData = await phoneRes.json();
     
     if (phoneData.error || !phoneData.data || phoneData.data.length === 0) {
-      throw new Error("No phone numbers found for this WABA.");
+      throw new Error("No phone numbers found! You must check ALL permission boxes (including messaging) during the Meta login popup.");
     }
     const realPhoneNumberId = phoneData.data[0].id;
 
@@ -168,7 +168,7 @@ router.post('/embedded-signup', async (req, res) => {
     const subRes = await fetch(`https://graph.facebook.com/v21.0/${realWabaId}/subscribed_apps`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.META_PERMANENT_SYSTEM_TOKEN}`
+        'Authorization': `Bearer ${userAccessToken}`
       }
     });
     const subData = await subRes.json();
