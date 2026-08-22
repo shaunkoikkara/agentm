@@ -84,46 +84,6 @@ Instructions:
   }
 };
 
-const transcribeAudio = async (base64Audio, mimeType) => {
-  try {
-    const response = await fetch(GEMINI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-goog-api-key': GEMINI_API_KEY
-      },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [
-            { text: "Listen to this WhatsApp audio voice note carefully and transcribe the exact words spoken into plain text. Only return the transcribed text, nothing else." },
-            {
-              inline_data: {
-                mime_type: mimeType || 'audio/ogg',
-                data: base64Audio
-              }
-            }
-          ]
-        }]
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      console.error('Gemini Transcription Error:', JSON.stringify(data));
-      throw new Error(data.error?.message || 'Gemini Audio API error');
-    }
-
-    const transcript = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    console.log(`🎙️ Gemini Transcribed Voice Note: "${transcript}"`);
-    return transcript || "Audio message received";
-  } catch (error) {
-    console.error('Error transcribing audio with Gemini:', error);
-    return "Voice note received (could not transcribe)";
-  }
-};
-
 module.exports = {
-  generateResponse,
-  transcribeAudio
+  generateResponse
 };
