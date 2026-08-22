@@ -164,6 +164,11 @@ export default function ConversationsPage() {
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={`w-2 h-2 rounded-full ${c.is_human_takeover ? 'bg-amber-500' : 'bg-emerald-500'}`} />
                       <span className="text-xs text-slate-500 font-medium capitalize">{c.is_human_takeover ? 'Human Mode' : 'AI Mode'}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md text-white ml-auto ${
+                        c.channel === 'instagram' ? 'bg-gradient-to-r from-pink-500 to-purple-600' : 'bg-emerald-600'
+                      }`}>
+                        {c.channel === 'instagram' ? '📸 Instagram' : '💬 WhatsApp'}
+                      </span>
                     </div>
                   </div>
                 </div>

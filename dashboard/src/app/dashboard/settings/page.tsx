@@ -202,6 +202,32 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Instagram DMs Integration Card */}
+      <div className="glass-card bg-gradient-to-br from-pink-950 via-purple-950 to-slate-950 text-white rounded-2xl p-6 mb-6 shadow-xl border border-pink-500/30 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                📸 Instagram Direct Messages
+              </span>
+            </div>
+            <h2 className="text-xl font-bold text-white mt-2">Connect Instagram DMs with Meta</h2>
+            <p className="text-slate-300 text-sm mt-1">
+              Answer Instagram DMs automatically using the same AI receptionist & business FAQs.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={launchMetaEmbeddedSignup}
+            className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-pink-600/30 flex items-center gap-2 transition-all shrink-0 text-sm"
+          >
+            <Sparkles className="w-4 h-4 text-yellow-300" />
+            Connect Instagram DMs
+          </button>
+        </div>
+      </div>
+
       <form onSubmit={handleSave} className="space-y-6">
         {/* Coexistence Mode Toggle */}
         <div className="glass-card bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">

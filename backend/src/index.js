@@ -8,6 +8,7 @@ const tenantRoutes = require('./routes/tenants');
 const knowledgeRoutes = require('./routes/knowledge');
 const conversationRoutes = require('./routes/conversations');
 const webhookRoutes = require('./routes/webhook');
+const webhookInstagramRoutes = require('./routes/webhook-instagram');
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api/knowledge', knowledgeRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/webhooks/whatsapp', webhookRoutes);
+app.use('/api/webhook', webhookRoutes); // Alias
+app.use('/api/webhook/instagram', webhookInstagramRoutes);
 
 // Privacy Policy (required by Meta)
 app.get('/privacy', (req, res) => {
